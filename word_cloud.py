@@ -1,11 +1,5 @@
 #!/usr/bin/env python
-"""
-With mask Example
-===============
-Generating a square wordcloud from the US constitution using default arguments.
-"""
 from os import path
-
 import numpy as np
 from PIL import Image
 from persian_wordcloud.wordcloud import PersianWordCloud, add_stop_words
