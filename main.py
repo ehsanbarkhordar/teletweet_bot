@@ -12,33 +12,32 @@ Send /start to initiate the conversation.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
-import configparser
 import logging
-import os
 
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove, Update)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
 
 from constants import Const
-
-config = configparser.ConfigParser()
-dirname = os.path.dirname(__file__)
-filename = os.path.join(dirname, './config.ini')
-config.read(filename)
+from load_config import config
+from twitter_utils import get_user_timeline
 
 # Enable logging
+from word_cloud import word_cloud_generator
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-GENDER, PHOTO, LOCATION, BIO = range(4)
+SERVICES, SCREEN_NAME, LOCATION, BIO = range(4)
 
 
-def start(update, context):
+def start(update: Update, context):
     reply_keyboard = [[Const.cloud_words]]
     user = update.effective_user
+    logger.info("start name= %s", user.full_name)
+
     update.message.reply_text(
         'سلام {name} عزیز☺️\n'
         '🌹 به ربات توییت گرام خوش اومدی 🌹\n'
@@ -46,28 +45,27 @@ def start(update, context):
         '👇🏻👇🏻👇🏻👇🏻👇🏻'.format(name=user.first_name),
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
-    return GENDER
+    return SERVICES
 
 
-def cloud_word(update, context):
-    user = update.message.from_user
-    logger.info("Gender of %s: %s", user.first_name, update.message.text)
-    update.message.reply_text('I see! Please send me a photo of yourself, '
-                              'so I know what you look like, or send /skip if you don\'t want to.',
+def get_screen_name(update, context):
+    logger.info("cloud_word")
+    update.message.reply_text('نام کاربری (username) حساب توییتری مورد نظرتو برام بنویس.',
                               reply_markup=ReplyKeyboardRemove())
 
-    return PHOTO
+    return SCREEN_NAME
 
 
-def photo(update, context):
-    user = update.message.from_user
-    photo_file = update.message.photo[-1].get_file()
-    photo_file.download('user_photo.jpg')
-    logger.info("Photo of %s: %s", user.first_name, 'user_photo.jpg')
-    update.message.reply_text('Gorgeous! Now, send me your location please, '
-                              'or send /skip if you don\'t want to.')
-
-    return LOCATION
+def word_cloud(update: Update, context):
+    screen_name = update.message.text
+    statuses = get_user_timeline(screen_name)
+    tweets = [status.full_text for status in statuses]
+    tweet_str = ' '.join(tweets)
+    image_binary = word_cloud_generator(tweet_str)
+    caption = 'ابر کلمات توییت های کاربر 👈🏻 {screen_name}\n' \
+              'توسط توییتگرام 🤖 @teletweet_bot'.format(screen_name=screen_name)
+    update.message.reply_photo(photo=image_binary, caption=caption)
+    return ConversationHandler.END
 
 
 def skip_photo(update, context):
@@ -135,10 +133,9 @@ def main():
         entry_points=[CommandHandler('start', start)],
 
         states={
-            GENDER: [MessageHandler(Filters.regex('^(Boy|Girl|Other)$'), cloud_word)],
+            SERVICES: [MessageHandler(Filters.regex('^(' + Const.cloud_words + ')$'), get_screen_name)],
 
-            PHOTO: [MessageHandler(Filters.photo, photo),
-                    CommandHandler('skip', skip_photo)],
+            SCREEN_NAME: [MessageHandler(Filters.text, word_cloud)],
 
             LOCATION: [MessageHandler(Filters.location, location),
                        CommandHandler('skip', skip_location)],
