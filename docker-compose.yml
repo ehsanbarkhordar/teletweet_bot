@@ -1,34 +1,13 @@
-version: '3.0'
+version: '3.7'
 services:
   pg_twitter_bale_bot:
     image: postgres:9.5
     container_name: pg_twitter_bale_bot
     restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=twitter_bale_bot
-      - TZ=Asia/Tehran
-    volumes:
-      - /home/barkhordar/docker/volumes/pg_twitter_bale_bot/postgres/:/var/lib/postgresqlgit /data/
 
   twitter_bale_bot:
     image: twitter_bale_bot:0.2-1
     container_name: twitter_bale_bot
-    environment:
-    #   PostgreSQL Config
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=twitter_bale_bot
-      - POSTGRES_HOST=pg_twitter_bale_bot
-      - POSTGRES_PORT=5432
-    #   Config
-      - BASE_URL=wss://api.bale.ai/v1/bots/
-      - TOKEN=649bf46416fa39f1e4893b4fa53faf59c309b54e
-      - CONSUMER_KEY=aE2w23LSsRGMT5H10iGg8ADa9
-      - CONSUMER_SECRET=Lop3x02PqF5eUVEWxxFNMHCkvHaoSnFLXrfydU4ul8BebhMkic
-      - TWEET_COUNT=3
-      - TIME_SLEEP=0.5
     depends_on:
      - pg_twitter_bale_bot
     restart: always
