@@ -1,18 +1,18 @@
-FROM python:3.8-alpine
+FROM python:3.8.0
 
-ENV TZ 'Asia/Tehran'
-RUN apk update && apk add tzdata libpq postgresql-dev build-base
-RUN apk add jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev && \
-    cp /usr/share/zoneinfo/Asia/Tehran /etc/localtime && \
-    echo $TZ > /etc/timezone
-RUN apk add --update --no-cache g++ gcc libxslt-dev
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
+# set work directory
+RUN mkdir /code
+WORKDIR /code
 
-WORKDIR /bot_root
-
-COPY ./requirements.txt ./requirements.txt
+# install dependencies
+RUN pip install --upgrade pip
+COPY requirements.txt /code/
 RUN pip install -r requirements.txt
 
-COPY ./ ./
+# copy project
+COPY . /code/
 CMD ["python", "main.py"]
-ENV PYTHONPATH /bot_root
