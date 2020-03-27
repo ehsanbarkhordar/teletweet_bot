@@ -4,12 +4,12 @@ With mask Example
 ===============
 Generating a square wordcloud from the US constitution using default arguments.
 """
+from os import path
+
+import numpy as np
+from PIL import Image
 from persian_wordcloud.wordcloud import PersianWordCloud, add_stop_words
 from wordcloud import STOPWORDS as EN_STOPWORDS
-from os import path
-from PIL import Image
-import numpy as np
-import io
 
 
 def word_cloud_generator(text):
@@ -44,5 +44,3 @@ def word_cloud_generator(text):
     image.save(bio, 'JPEG')
     bio.seek(0)
     return bio
-
-

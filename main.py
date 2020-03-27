@@ -13,7 +13,9 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 import logging
+import re
 
+import telegram
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove, Update)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
@@ -58,9 +60,18 @@ def get_screen_name(update, context):
 
 def word_cloud(update: Update, context):
     screen_name = update.message.text
+    chat_id = update.effective_message.chat_id
+    context.bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
     statuses = get_user_timeline(screen_name)
     tweets = [status.full_text for status in statuses]
     tweet_str = ' '.join(tweets)
+    tweet_str = tweet_str.replace("RT", "")
+    tweet_str = tweet_str.replace("https", "")
+    tweet_str = tweet_str.replace("@", "")
+    tweet_str = tweet_str.replace("CO", "")
+    tweet_str = tweet_str.replace(screen_name, "")
+    tweet_str = re.sub(r'[a-zA-Z]+', '', tweet_str)
+    context.bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
     image_binary = word_cloud_generator(tweet_str)
     caption = 'ابر کلمات توییت های کاربر 👈🏻 {screen_name}\n' \
               'توسط توییتگرام 🤖 @teletweet_bot'.format(screen_name=screen_name)
