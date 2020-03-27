@@ -1,13 +1,6 @@
 version: '3.7'
 services:
-  pg_twitter_bale_bot:
-    image: postgres:9.5
-    container_name: pg_twitter_bale_bot
-    restart: always
-
-  twitter_bale_bot:
-    image: twitter_bale_bot:0.2-1
-    container_name: twitter_bale_bot
-    depends_on:
-     - pg_twitter_bale_bot
+  teletweet_bot:
+    build: .
+    container_name: teletweet_bot
     restart: always

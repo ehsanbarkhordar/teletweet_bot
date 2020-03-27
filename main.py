@@ -42,7 +42,7 @@ def start(update: Update, context):
 
     update.message.reply_text(
         'سلام {name} عزیز☺️\n'
-        '🌹 به ربات توییت گرام خوش اومدی 🌹\n'
+        '🌹 به ربات تله توییت خوش اومدی 🌹\n'
         'یکی از گزینه های زیر رو انتخاب کن.'
         '👇🏻👇🏻👇🏻👇🏻👇🏻'.format(name=user.first_name),
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
@@ -74,7 +74,7 @@ def word_cloud(update: Update, context):
     context.bot.send_chat_action(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
     image_binary = word_cloud_generator(tweet_str)
     caption = 'ابر کلمات توییت های کاربر 👈🏻 {screen_name}\n' \
-              'توسط توییتگرام 🤖 @teletweet_bot'.format(screen_name=screen_name)
+              'توسط تله توییت 🤖 @teletweet_bot'.format(screen_name=screen_name)
     update.message.reply_photo(photo=image_binary, caption=caption)
     return ConversationHandler.END
 
